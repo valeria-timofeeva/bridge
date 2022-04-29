@@ -6,7 +6,6 @@ import { ethers, network } from "hardhat";
 import { Token } from "../typechain";
 import { Bridge } from "../typechain/Bridge";
 
-
 describe("Bridge", function () {
   let clean: any;
   let bridgeA: Bridge;
@@ -18,8 +17,8 @@ describe("Bridge", function () {
     validatorA: SignerWithAddress,
     validatorB: SignerWithAddress,
     notValidator: SignerWithAddress;
-
-  const _AMOUNT = parseUnits("500");
+  
+    const _AMOUNT = parseUnits("500");
 
   before(async () => {
     [user, user2, validatorA, validatorB, notValidator] = await ethers.getSigners();
@@ -52,6 +51,7 @@ describe("Bridge", function () {
     });
 
   });
+  
   describe("swap", function () {
     it("Reverts: Not enought founds", async function () {
       await expect(bridgeA.swap(user.address, parseUnits("1000"))).to.be.revertedWith(
@@ -72,7 +72,6 @@ describe("Bridge", function () {
 
       expect(await tokenA.balanceOf(user.address)).to.be.equal(0);
       expect(await bridgeA.id()).to.be.equal(BigNumber.from("1"));
-
     });
   });
 
