@@ -12,16 +12,16 @@ async function main() {
   const bridgeA = await Bridge.deploy(validatorA.address);
   await bridgeA.deployed();
 
-  const bridgeB = await Bridge.deploy(validatorB.address);
+  const bridgeB = await Bridge.deploy(validatorA.address);
   await bridgeB.deployed();
 
   const tokenAddressA = await bridgeA.token();
   const tokenA: Token = await ethers.getContractAt("Token", tokenAddressA);
-  await tokenA.mint(user.address, parseUnits("100"));
+  await tokenA.mint(user.address, parseUnits("10000"));
 
   const tokenAddressB = await bridgeA.token();
   const tokenB: Token = await ethers.getContractAt("Token", tokenAddressB);
-  await tokenB.mint(user.address, parseUnits("100"));
+  await tokenB.mint(user.address, parseUnits("10000"));
 
   const contracts = {
     bridgeA: bridgeA.address,
@@ -29,7 +29,7 @@ async function main() {
     tokenA: tokenAddressA,
     tokenB: tokenAddressB,
     validatorA: validatorA.address,
-    validatorB: validatorB.address,
+    validatorB: validatorA.address,
     deployer: user.address
   };
   

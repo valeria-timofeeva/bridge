@@ -8,8 +8,9 @@ const contractInfo = require("./deploy.json");
 
 task
     ("swap", "Writes off tokens from user for another network")
-    .addParam("receivingAddress", "Receiving")
+    .addParam("receivingaddress", "Receiving")
     .addParam("amount", "Amount of tokens")
+    .addParam("chainidto", "Destination chain")
     .setAction(async (taskArgs, hre) => {
         const contract = await hre.ethers.getContractAt("Bridge", contractInfo.bridgeA);
         const [user, validatorA] = await hre.ethers.getSigners();
@@ -19,10 +20,12 @@ task
         await tokenA.connect(user).approve(contract.address, parseUnits("100"));
 
         const id = await contract.id();
-        await contract.swap(taskArgs.receivingAddress, parseUnits(taskArgs.amount));
+        await contract.swap(taskArgs.receivingaddress, parseUnits(taskArgs.amount), taskArgs.chainidto);
+        const network = await hre.ethers.provider.getNetwork();
+        console.log(network.chainId);
         const msg = utils.solidityKeccak256(
-            ["address", "uint256", "uint256"],
-            [taskArgs.receivingAddress, parseUnits(taskArgs.amount), id]
+            ["address", "uint256", "uint256", "uint256", "uint256"],
+            [taskArgs.receivingaddress, parseUnits(taskArgs.amount), id, taskArgs.chainidto, network.chainId]
         );
         const signature = await validatorA.signMessage(utils.arrayify(msg));
         console.log(signature);
@@ -30,24 +33,19 @@ task
 
 task
     ("redeem", "Accepts(redeem) tokens after swap another network")
-    .addParam("receivingAddress", "Receiving")
+    .addParam("receivingaddress", "Receiving")
     .addParam("amount", "Amount of tokens")
     .addParam("id", "Id of swapping")
+    .addParam("chainidfrom", "Chain from send")
     .addParam("signature", "Signature of bridge validator")
     .setAction(async (taskArgs, hre) => {
         const contract = await hre.ethers.getContractAt("Bridge", contractInfo.bridgeB);
-        const [user] = await hre.ethers.getSigners();
-
-        const tokenAddressB = await contract.token();
-        const tokenB: Token = await hre.ethers.getContractAt("Token", tokenAddressB);
-        await tokenB.connect(user).approve(contract.address, parseUnits("100"));
-
         const tx = await contract.redeem(
-            taskArgs.receivingAddress,
+            taskArgs.receivingaddress,
             parseUnits(taskArgs.amount),
             taskArgs.id,
+            taskArgs.chainidfrom,
             taskArgs.signature
         );
-
         console.log("Successfull: ", tx);
     });

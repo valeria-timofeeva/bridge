@@ -4,7 +4,6 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract Token is ERC20 {
     constructor() ERC20("Token", "TKN") {}
-
     function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
@@ -12,4 +11,5 @@ contract Token is ERC20 {
     function burn(address account, uint256 amount) public {
         _burn(account, amount);
     }
+
 }
